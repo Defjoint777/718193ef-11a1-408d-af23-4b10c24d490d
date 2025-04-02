@@ -2,50 +2,90 @@
 {
   "depends_on": [],
   "author": "Stephan Bökelmann",
-  "first_used": "2025-03-17",
-  "keywords": ["learning", "exercises", "education", "practice"]
+  "first_used": "2025-04-01",
+  "keywords": ["assembly", "GAS", "syscall", "x86_64", "Linux"]
 }
 --->
 
-# Learning Through Exercises
+# Introduction to GAS on Linux
 
 ## 1) Introduction
-Learning by doing is one of the most effective methods to acquire new knowledge and skills. Rather than passively consuming information, actively engaging in problem-solving fosters deeper understanding and long-term retention. By working through structured exercises, students can grasp complex concepts in a more intuitive and applicable way. This approach is particularly beneficial in technical fields like programming, mathematics, and engineering.
 
-### 1.1) Further Readings and Other Sources
-- [The Importance of Practice in Learning](https://www.sciencedirect.com/science/article/pii/S036013151300062X)
-- "The Art of Learning" by Josh Waitzkin
-- [How to Learn Effectively: 5 Key Strategies](https://www.edutopia.org/article/5-research-backed-learning-strategies)
+Assembly programming allows us to interact with the **bare metal** of the machine. Using **NASM (Netwide Assembler)**, a popular assembler for x86 and x86_64 architectures, we can write low-level code that speaks almost directly to the CPU.
+
+NASM is:
+- Simple and consistent
+- Uses **Intel syntax**
+- Produces object files in **ELF** format for Linux
+- Suitable for small, direct programs or educational use
+
+In this exercise, we will write a minimal GAS program that calls the Linux `exit` syscall to terminate a process with a specific return code. This teaches how system calls work, how arguments are passed via registers, and how the program execution begins at `_start`.
+
+To install NASM on your Linux system:
+
+```bash
+sudo apt update
+sudo apt install nasm
+```
+
+Verify installation:
+
+```bash
+as -v
+```
+
+Here is your first complete GAS program:
+
+```as
+.section .text
+.globl _start
+
+_start:
+    mov    $60, %rax       # syscall number for exit (60)
+    mov    $42, %rdi       # exit code 42
+    syscall                # invoke kernel
+```
+
+To assemble and run it:
+
+```bash
+$ as -o exit.o exit.s
+$ ld -o exit exit.o
+$ ./exit
+$ echo $?
+```
+
+This is a minimal, but powerful example that demonstrates the Linux syscall ABI: parameters go into specific registers (`rdi`, `rsi`, `rdx`…), the syscall number goes into `rax`, and the `syscall` instruction triggers the transition into kernel space.
+
+Whenever the `syscall` instruction is encounterd in an assembly-program, the processor changes its behavior. Instead of further running in `ring 3` or _User Mode_ the processor clears its _Instruction Cache_, switches into `ring 0` or _Kernel Mode_ and loads the next instructions from a location called **Model-Specific Register / (Long System Target Address Register** or short: `MSR_LSTAR`.
+
+This is a special address, which is set during the boot process. 
+The Kernel than takes care of the instructions that were written into the registers (`rdi`, `rsi`, `rdx`…).
 
 ## 2) Tasks
-1. **Write a Summary**: Summarize the concept of "learning by doing" in 3-5 sentences.
-2. **Example Identification**: List three examples from your own experience where learning through exercises helped you understand a topic better.
-3. **Create an Exercise**: Design a simple exercise for a topic of your choice that someone else could use to practice.
-4. **Follow an Exercise**: Find an online tutorial that includes exercises and complete at least two of them.
-5. **Modify an Existing Exercise**: Take a basic problem from a textbook or online course and modify it to make it slightly more challenging.
-6. **Pair Learning**: Explain a concept to a partner and guide them through an exercise without giving direct answers.
-7. **Review Mistakes**: Look at an exercise you've previously completed incorrectly. Identify why the mistake happened and how to prevent it in the future.
-8. **Time Challenge**: Set a timer for 10 minutes and try to solve as many simple exercises as possible on a given topic.
-9. **Self-Assessment**: Create a checklist to evaluate your own performance in completing exercises effectively.
-10. **Reflect on Progress**: Write a short paragraph on how this structured approach to exercises has influenced your learning.
 
-<details>
-  <summary>Tip for Task 5</summary>
-  Try making small adjustments first, such as increasing the difficulty slightly or adding an extra constraint.
-</details>
+1. **Install GAS**: Install `gas` via your package manager by installing `binutils` and verify it works.
+2. **Exit with Code 7**: Modify the program above to exit with code 7 instead of 42.
+3. **Invalid Syscall**: Replace `mov rax, 60` with an invalid syscall number. Observe the behavior!
 
 ## 3) Questions
-1. What are the main benefits of learning through exercises compared to passive learning?
-2. How do exercises improve long-term retention?
-3. Can you think of a subject where learning through exercises might be less effective? Why?
-4. What role does feedback play in learning through exercises?
-5. How can self-designed exercises improve understanding?
-6. Why is it beneficial to review past mistakes in exercises?
-7. How does explaining a concept to someone else reinforce your own understanding?
-8. What strategies can you use to stay motivated when practicing with exercises?
-9. How can timed challenges contribute to learning efficiency?
-10. How do exercises help bridge the gap between theory and practical application?
+
+1. What does the `globl _start` directive do?
+2. Why do we use `rax` to specify the syscall?
+3. What would happen if you omit the `syscall` instruction?
+4. What is the difference between the `ld` and `as` steps?
+
+<details>
+  <summary>Hint: syscall numbers</summary>
+
+  Check out the Linux syscall table for x86_64:  
+  https://blog.rchapman.org/posts/Linux_System_Call_Table_for_x86_64/
+</details>
 
 ## 4) Advice
-Practice consistently and seek out diverse exercises that challenge different aspects of a topic. Combine exercises with reflection and feedback to maximize your learning efficiency. Don't hesitate to adapt exercises to fit your own needs and ensure that you're actively engaging with the material, rather than just going through the motions.
 
+Learning assembly is not about writing large programs — it's about understanding the **machine** beneath your abstractions. Starting with a minimal syscall lets you bypass the C runtime, linker conveniences, and libc entirely. This helps to demystify what's really going on when you run a program.
+
+Don’t be afraid to break things. Inspect binaries, modify instructions, and read system call tables. In the words of Donald Knuth:
+
+> “People who are more than casually interested in computers should have at least some idea of what the underlying hardware is like.”  
