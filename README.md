@@ -11,21 +11,27 @@
 
 ## 1) Introduction
 
-Assembly programming allows us to interact with the **bare metal** of the machine. Using **NASM (Netwide Assembler)**, a popular assembler for x86 and x86_64 architectures, we can write low-level code that speaks almost directly to the CPU.
+Assembly programming allows us to interact with the **bare metal** of the machine. Using **GAS (GNU Assembler)**, a popular assembler for x86 and x86_64 architectures, we can write low-level code that speaks almost directly to the CPU.
 
-NASM is:
-- Simple and consistent
-- Uses **Intel syntax**
-- Produces object files in **ELF** format for Linux
-- Suitable for small, direct programs or educational use
+GAS is:  
+- The GNU Assembler, typically invoked as `as`, and part of the GNU Binutils suite.  
+- Used to assemble assembly language source files into machine code for various architectures.  
+- Compatible with the AT&T syntax by default, though it can also support Intel syntax via directives.  
+- Often used as the backend assembler by the GNU Compiler Collection (GCC) to produce object files.  
+- Cross-platform and supports cross-compilation for different target architectures.  
+- Uses a two-pass assembly process: the first to parse and resolve symbols, the second to generate machine code.  
+- Supports macros and conditional assembly using `.macro`, `.if`, `.endif`, etc.  
+- Produces relocatable object files (typically `.o`) that can be linked using the GNU linker `ld`.  
+- Supports various debugging formats including DWARF and STABS for integration with tools like GDB.  
+
 
 In this exercise, we will write a minimal GAS program that calls the Linux `exit` syscall to terminate a process with a specific return code. This teaches how system calls work, how arguments are passed via registers, and how the program execution begins at `_start`.
 
-To install NASM on your Linux system:
+To install GAS on your Linux system:
 
 ```bash
 sudo apt update
-sudo apt install nasm
+sudo apt install binutils
 ```
 
 Verify installation:
