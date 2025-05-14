@@ -37,7 +37,7 @@ sudo apt install binutils
 Verify installation:
 
 ```bash
-as -v
+as -vsectio
 ```
 
 Here is your first complete GAS program:
@@ -77,9 +77,18 @@ The Kernel than takes care of the instructions that were written into the regist
 ## 3) Questions
 
 1. What does the `globl _start` directive do?
-2. Why do we use `rax` to specify the syscall?
-3. What would happen if you omit the `syscall` instruction?
-4. What is the difference between the `ld` and `as` steps?
+   Defines where Programmcode is starting.
+   
+3. Why do we use `rax` to specify the syscall?
+   cuz we are using 64_86 architecture rax is used to to save systemcallnumbers.
+   
+5. What would happen if you omit the `syscall` instruction?
+   if we omit syscall, the OS wouldnt understand what are we trying to do.
+   
+7. What is the difference between the `ld` and `as` steps?
+   as(Assembler)is one of Assambler development tools and working as converter tools. So with as -o text.o text.s u can translate ur     
+   assembler Code(input) in to Machinecode (output)
+   ld(Linker) is to take Maschinecode create a second File and make it executible. The new File is now linked with MaschineCodeFile.o
 
 <details>
   <summary>Hint: syscall numbers</summary>
